@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CurrencyCalc</string>
+    <string name="action_about">About</string>
+    <string name="select">Wybierz walutę</string>
+    <string name="calculate">Oblicz</string>
+    <string name="refresh">Odśwież</string>
+    <string name="eur">EUR</string>
+    <string name="usd">USD</string>
+    <string name="gbp">GBP</string>
+    <string name="chf">CHF</string>
+    <string name="pln">PLN</string>
+
+
+</resources>

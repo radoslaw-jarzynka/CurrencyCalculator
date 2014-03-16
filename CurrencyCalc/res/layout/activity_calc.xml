@@ -1,0 +1,175 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".CalcActivity" >
+
+    <TextView
+        android:id="@+id/selectCurr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/select"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <LinearLayout
+        android:id="@+id/calcArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/selectCurr"
+        android:gravity="center_horizontal|top"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/fromEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="5" >
+            </EditText>
+
+            <RadioGroup
+                android:id="@+id/fromRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:orientation="vertical" >
+
+                <RadioButton
+                    android:id="@+id/fromPln"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onFromRadioButtonClicked"
+                    android:text="@string/pln" />
+
+                <RadioButton
+                    android:id="@+id/fromEur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onFromRadioButtonClicked"
+                    android:text="@string/eur" />
+
+                <RadioButton
+                    android:id="@+id/fromUsd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onFromRadioButtonClicked"
+                    android:text="@string/usd" />
+
+                <RadioButton
+                    android:id="@+id/fromGbp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onFromRadioButtonClicked"
+                    android:text="@string/gbp" />
+
+                <RadioButton
+                    android:id="@+id/fromChf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onFromRadioButtonClicked"
+                    android:text="@string/chf" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="->"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/toEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="5" >
+            </EditText>
+
+            <RadioGroup
+                android:id="@+id/toRadioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <RadioButton
+                    android:id="@+id/toPln"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToRadioButtonClicked"
+                    android:text="@string/pln" />
+
+                <RadioButton
+                    android:id="@+id/toEur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToRadioButtonClicked"
+                    android:text="@string/eur" />
+
+                <RadioButton
+                    android:id="@+id/toUsd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToRadioButtonClicked"
+                    android:text="@string/usd" />
+
+                <RadioButton
+                    android:id="@+id/toGbp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToRadioButtonClicked"
+                    android:text="@string/gbp" />
+
+                <RadioButton
+                    android:id="@+id/toChf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToRadioButtonClicked"
+                    android:text="@string/chf" />
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/calcArea"
+        android:layout_below="@+id/calcArea"
+        android:text="@string/refresh" />
+
+    <Button
+        android:id="@+id/calcButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/refreshButton"
+        android:layout_alignBottom="@+id/refreshButton"
+        android:layout_alignRight="@+id/calcArea"
+        android:text="@string/calculate" />
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="42dp" />
+
+</RelativeLayout>
