@@ -14,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,14 +73,6 @@ public class CalcActivity extends Activity {
 		
   		currencies = new HashMap<String, Currency>();
   		
-  		dbAdapter = new DBAdapter(getApplicationContext());
-  	    dbAdapter.open();
-  	    getAllCurrencies();
-		
-  	    if (isOnline()) {
-  	    	CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
-			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
-  	    }
   	    
 		calculateBtn = (Button) findViewById(R.id.calcButton);
 		refreshBtn = (Button) findViewById(R.id.refreshButton);
@@ -87,12 +80,23 @@ public class CalcActivity extends Activity {
 		fromEdit = (EditText) findViewById(R.id.fromEdit);
 		toEdit = (EditText) findViewById(R.id.toEdit);
 		
+		dbAdapter = new DBAdapter(getApplicationContext());
+		dbAdapter.open();
+		getAllCurrencies();
+		
+		if (isOnline()) {
+			CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
+			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
+		}
+		else {
+			downloading.setVisibility(View.GONE);
+		}
 		calculateBtn.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				double fromValue = Double.parseDouble(fromEdit.getText().toString());
-				if (!fromCurrency.name.equals("PLN") && toCurrency != null && fromCurrency != null) {
+				if (toCurrency != null && fromCurrency != null && !fromCurrency.name.equals("PLN")) {
 					//przerzucamy do PLN
 					double inPLN = fromValue/(fromCurrency.value*fromCurrency.multiplier);
 					//przerzucamy do wlasciwej waluty
@@ -181,11 +185,14 @@ public class CalcActivity extends Activity {
 		}
 		
 	    protected HashMap<String, Currency> doInBackground(String... url) {
+	    	//downloading.setVisibility(View.VISIBLE);
+	    	Log.d("", "Downlading!");
 	    	return CurrenciesParser.getCurrencies(url[0], currencies);
 	    }
 	    
 	    protected void onPostExecute(HashMap<String, Currency> result) {
 	    	currencies = result;
+	    	Log.d("", "Finished Downloading!");
 	    	downloading.setVisibility(View.GONE);
 	    }
 	}

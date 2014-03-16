@@ -126,12 +126,15 @@ public class DBAdapter {
     }
     
     public boolean doesCurrencyExistInDB(String name) {
-    	String Query = "Select * from currencies where name = " + name ;
+    	try {
         Cursor cursor = db.rawQuery("Select * from currencies where name = " + name, null);
         if(cursor.getCount()<=0){
         	return false;
         }
         return true;
+    	} catch (SQLiteException e){
+    		return false;
+    	}
     }
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
