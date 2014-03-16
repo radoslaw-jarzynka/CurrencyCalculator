@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -32,7 +33,7 @@ public class DBAdapter {
     public static final int MULTIPLIER_COLUMN = 2;
     
     private static final String DB_CREATE_TODO_TABLE =
-            "CREATE TABLE " + DB_CURRENCIES_TABLE + "( " +
+            "CREATE TABLE IF NOT EXISTS " + DB_CURRENCIES_TABLE + "( " +
             KEY_NAME + " " + NAME_OPTIONS + ", " +
             KEY_VALUE + " " + VALUE_OPTIONS + ", " +
             KEY_MULTIPLIER + " " + MULTIPLIER_OPTIONS +
@@ -59,11 +60,20 @@ public class DBAdapter {
     }
     
     public long insertCurrency(String name, double value, double multiplier) {
+    	try {
         ContentValues newCurrencyValues = new ContentValues();
         newCurrencyValues.put(KEY_NAME, name);
         newCurrencyValues.put(KEY_VALUE, value);
         newCurrencyValues.put(KEY_MULTIPLIER, multiplier);
         return db.insert(DB_CURRENCIES_TABLE, null, newCurrencyValues);
+    	} catch (SQLException e) {
+    		db.execSQL("DELETE FROM currencies WHERE name = " + name);
+            ContentValues newCurrencyValues = new ContentValues();
+            newCurrencyValues.put(KEY_NAME, name);
+            newCurrencyValues.put(KEY_VALUE, value);
+            newCurrencyValues.put(KEY_MULTIPLIER, multiplier);
+            return db.insert(DB_CURRENCIES_TABLE, null, newCurrencyValues);
+    	}
     }
     
     public boolean updateCurrency(Currency currency) {
@@ -75,11 +85,17 @@ public class DBAdapter {
     }
      
     public boolean updateCurrency(String name, double value, double multiplier) {
+    	try {
         String where = KEY_NAME + "=" + name;
         ContentValues updateCurrencyValues = new ContentValues();
         updateCurrencyValues.put(KEY_VALUE, value);
         updateCurrencyValues.put(KEY_MULTIPLIER, multiplier);
         return db.update(DB_CURRENCIES_TABLE, updateCurrencyValues, where, null) > 0;
+    	} catch (SQLiteException e) {
+    		db.execSQL("DELETE FROM currencies WHERE name = " + name);
+    		insertCurrency(name, value, multiplier);
+    		return true;
+    	}
     }
 
     public boolean deleteCurrency(String name){

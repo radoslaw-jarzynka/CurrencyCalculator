@@ -12,14 +12,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 public class CurrenciesParser {
 
 	public static final String TAG = CurrenciesParser.class.getName();
 
-	public static HashMap<String, Currency> getCurrencies(String urlString) {
-		HashMap<String, Currency> currencies = new HashMap<String, Currency>();
+	public static HashMap<String, Currency> getCurrencies(String urlString, HashMap<String,Currency> currencies) {
+		//HashMap<String, Currency> currencies = new HashMap<String, Currency>();
 
 		try {
 
@@ -55,7 +58,8 @@ public class CurrenciesParser {
 		currencies.put("PLN", new Currency("PLN", 1, 1));
 		return currencies;
 	}
-
+	
+	
 	private static String getValue(Element element, String tag) {
 		NodeList kodList = element.getElementsByTagName(tag);
 		Element kodElement = (Element) kodList.item(0);

@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -73,25 +75,12 @@ public class CalcActivity extends Activity {
   		dbAdapter = new DBAdapter(getApplicationContext());
   	    dbAdapter.open();
   	    getAllCurrencies();
-//		SharedPreferences prefs = this.getSharedPreferences(PREFS_NAME, 0);
-//		
-//		int numberOfEntries = prefs.getInt("numberOfEntries", 0);
-//		if (numberOfEntries != 0) {
-//			for (int i = 0; i < numberOfEntries; i++) {
-//				String str = prefs.getString(""+i, "");
-//				if (!str.equals("")) {
-//					String _curStr = prefs.getString(""+i, "");
-//					if (!_curStr.equals("")) {
-//						Currency _cur = Currency.getCurrencyFromSerializedString(_curStr);
-//						currencies.put(_cur.name, _cur);
-//					}
-//				}
-//			}
-//		}
 		
-		CurrencyDownloader currencyDownloader = new CurrencyDownloader();
-		currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
-		
+  	    if (isOnline()) {
+  	    	CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
+			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
+  	    }
+  	    
 		calculateBtn = (Button) findViewById(R.id.calcButton);
 		refreshBtn = (Button) findViewById(R.id.refreshButton);
 		downloading = (ProgressBar) findViewById(R.id.progressBar1);
@@ -118,7 +107,7 @@ public class CalcActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				CurrencyDownloader currencyDownloader = new CurrencyDownloader();
+				CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
 				currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
 				downloading.setVisibility(View.VISIBLE);
 			}
@@ -172,12 +161,26 @@ public class CalcActivity extends Activity {
 		
 	}
 	
-	
+	public boolean isOnline() {
+	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
+	}
+
 
 	private class CurrencyDownloader extends AsyncTask<String, Void, HashMap<String, Currency>> {
 		
+		HashMap<String,Currency> currencies;
+		
+		public CurrencyDownloader(HashMap<String,Currency> currencies) {
+			this.currencies = currencies;
+		}
+		
 	    protected HashMap<String, Currency> doInBackground(String... url) {
-	    	return CurrenciesParser.getCurrencies(url[0]);
+	    	return CurrenciesParser.getCurrencies(url[0], currencies);
 	    }
 	    
 	    protected void onPostExecute(HashMap<String, Currency> result) {
