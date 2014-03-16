@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -27,6 +28,9 @@ public class CalcActivity extends Activity {
 	Currency fromCurrency;
 	Currency toCurrency;
 	
+	private DBAdapter dbAdapter;
+	private Cursor currencyCursor;
+	
 	HashMap<String, Currency> currencies;
 	Button calculateBtn;
 	Button refreshBtn;
@@ -34,6 +38,30 @@ public class CalcActivity extends Activity {
 	EditText toEdit;
 	ProgressBar downloading;
 	
+	private void getAllCurrencies() {
+	    currencyCursor = getAllEntriesFromDb();
+	    updateCurrencyMap();
+	}
+	 
+	private Cursor getAllEntriesFromDb() {
+	    currencyCursor = dbAdapter.getAllCurrencies();
+	    if(currencyCursor != null) {
+	        startManagingCursor(currencyCursor);
+	        currencyCursor.moveToFirst();
+	    }
+	    return currencyCursor;
+	}
+	 
+	private void updateCurrencyMap() {
+	    if(currencyCursor != null && currencyCursor.moveToFirst()) {
+	        do {
+	        	String name = currencyCursor.getString(DBAdapter.NAME_COLUMN);
+	        	double value = currencyCursor.getDouble(DBAdapter.VALUE_COLUMN);
+	        	double multiplier = currencyCursor.getDouble(DBAdapter.MULTIPLIER_COLUMN);
+	            currencies.put(name, new Currency(name,value,multiplier));
+	        } while(currencyCursor.moveToNext());
+	    }
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +69,10 @@ public class CalcActivity extends Activity {
 		setContentView(R.layout.activity_calc);
 		
   		currencies = new HashMap<String, Currency>();
+  		
+  		dbAdapter = new DBAdapter(getApplicationContext());
+  	    dbAdapter.open();
+  	    getAllCurrencies();
 //		SharedPreferences prefs = this.getSharedPreferences(PREFS_NAME, 0);
 //		
 //		int numberOfEntries = prefs.getInt("numberOfEntries", 0);
@@ -127,6 +159,16 @@ public class CalcActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
+		if(dbAdapter != null) {
+			Iterator it = currencies.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pairs = (Map.Entry)it.next();
+				Currency _cur = (Currency) pairs.getValue();
+				dbAdapter.updateCurrency(_cur);
+				it.remove(); // avoids a ConcurrentModificationException
+			}
+			dbAdapter.close();
+		}
 		
 	}
 	

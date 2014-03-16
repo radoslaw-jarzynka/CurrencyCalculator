@@ -45,8 +45,7 @@ public class CurrenciesParser {
 						"kurs_sredni").replace(",", "."));
 				double multiplier = Double.parseDouble(getValue(
 						(Element) node, "przelicznik").replace(",", "."));
-
-				currencies.put(name, new Currency(name, value, multiplier));
+				if (name !=null) currencies.put(name, new Currency(name, value, multiplier));
 			}
 
 		} catch (Exception e) {
