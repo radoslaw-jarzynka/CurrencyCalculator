@@ -153,7 +153,8 @@ public class CalcActivity extends Activity {
 			while (it.hasNext()) {
 				Map.Entry pairs = (Map.Entry)it.next();
 				Currency _cur = (Currency) pairs.getValue();
-				dbAdapter.updateCurrency(_cur);
+				if (dbAdapter.doesCurrencyExistInDB(_cur.name)) dbAdapter.updateCurrency(_cur);
+				else dbAdapter.insertCurrency(_cur);
 				it.remove(); // avoids a ConcurrentModificationException
 			}
 			dbAdapter.close();

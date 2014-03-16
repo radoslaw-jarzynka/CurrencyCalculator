@@ -59,6 +59,10 @@ public class DBAdapter {
         dbHelper.close();
     }
     
+    public long insertCurrency(Currency _cur) {
+    	return insertCurrency(_cur.name,_cur.value,_cur.multiplier);
+    }
+    
     public long insertCurrency(String name, double value, double multiplier) {
     	try {
         ContentValues newCurrencyValues = new ContentValues();
@@ -92,7 +96,7 @@ public class DBAdapter {
         updateCurrencyValues.put(KEY_MULTIPLIER, multiplier);
         return db.update(DB_CURRENCIES_TABLE, updateCurrencyValues, where, null) > 0;
     	} catch (SQLiteException e) {
-    		db.execSQL("DELETE FROM currencies WHERE name = " + name);
+    		//db.execSQL("DELETE FROM currencies WHERE name = " + name);
     		insertCurrency(name, value, multiplier);
     		return true;
     	}
@@ -119,6 +123,15 @@ public class DBAdapter {
             _currency = new Currency(name, value, multiplier);
         }
         return _currency;
+    }
+    
+    public boolean doesCurrencyExistInDB(String name) {
+    	String Query = "Select * from currencies where name = " + name ;
+        Cursor cursor = db.rawQuery("Select * from currencies where name = " + name, null);
+        if(cursor.getCount()<=0){
+        	return false;
+        }
+        return true;
     }
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
