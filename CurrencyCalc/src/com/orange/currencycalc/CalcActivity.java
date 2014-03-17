@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -37,6 +38,7 @@ public class CalcActivity extends Activity {
 	HashMap<String, Currency> currencies;
 	Button calculateBtn;
 	Button refreshBtn;
+	Button findBankBtn;
 	EditText fromEdit;
 	EditText toEdit;
 	ProgressBar downloading;
@@ -46,12 +48,16 @@ public class CalcActivity extends Activity {
 	    updateCurrencyMap();
 	}
 	 
+	@SuppressWarnings("deprecation")
 	private Cursor getAllEntriesFromDb() {
 	    currencyCursor = dbAdapter.getAllCurrencies();
 	    if(currencyCursor != null) {
-	        startManagingCursor(currencyCursor);
+	    	if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+	            startManagingCursor(currencyCursor);
+	        }
 	        currencyCursor.moveToFirst();
 	    }
+	    
 	    return currencyCursor;
 	}
 	 
@@ -65,6 +71,23 @@ public class CalcActivity extends Activity {
 	        } while(currencyCursor.moveToNext());
 	    }
 	}
+	
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		
+		dbAdapter = new DBAdapter(getApplicationContext());
+		dbAdapter.open();
+		getAllCurrencies();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		dbAdapter = new DBAdapter(getApplicationContext());
+		dbAdapter.open();
+		getAllCurrencies();
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +99,7 @@ public class CalcActivity extends Activity {
   	    
 		calculateBtn = (Button) findViewById(R.id.calcButton);
 		refreshBtn = (Button) findViewById(R.id.refreshButton);
+		findBankBtn = (Button) findViewById(R.id.findBankButton);
 		downloading = (ProgressBar) findViewById(R.id.progressBar1);
 		fromEdit = (EditText) findViewById(R.id.fromEdit);
 		toEdit = (EditText) findViewById(R.id.toEdit);
@@ -84,13 +108,13 @@ public class CalcActivity extends Activity {
 		dbAdapter.open();
 		getAllCurrencies();
 		
-		if (isOnline()) {
-			CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
-			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
-		}
-		else {
+//		if (isOnline()) {
+//			CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
+//			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
+//		}
+//		else {
 			downloading.setVisibility(View.GONE);
-		}
+//		}
 		calculateBtn.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -111,12 +135,21 @@ public class CalcActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
+				if (isOnline()) {
 				CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
 				currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
 				downloading.setVisibility(View.VISIBLE);
+				}
 			}
 		});
 		
+		findBankBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(getApplicationContext(), MapActivity.class);
+				startActivity(i);
+			}
+		});
 		
 		
 	}
@@ -150,6 +183,7 @@ public class CalcActivity extends Activity {
 	
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	protected void onStop() {
 		super.onStop();
 		if(dbAdapter != null) {
@@ -157,8 +191,9 @@ public class CalcActivity extends Activity {
 			while (it.hasNext()) {
 				Map.Entry pairs = (Map.Entry)it.next();
 				Currency _cur = (Currency) pairs.getValue();
-				if (dbAdapter.doesCurrencyExistInDB(_cur.name)) dbAdapter.updateCurrency(_cur);
-				else dbAdapter.insertCurrency(_cur);
+				//if (dbAdapter.doesCurrencyExistInDB(_cur.name)) dbAdapter.updateCurrency(_cur);
+				//else 
+				dbAdapter.insertCurrency(_cur);
 				it.remove(); // avoids a ConcurrentModificationException
 			}
 			dbAdapter.close();

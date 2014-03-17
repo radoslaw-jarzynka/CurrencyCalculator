@@ -168,8 +168,16 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="42dp" />
+        android:layout_alignTop="@+id/refreshButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/findBankButton"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignLeft="@+id/refreshButton"
+        android:layout_below="@id/refreshButton"
+        android:layout_marginTop="34dp"
+        android:text="@string/findBankButton" />
 
 </RelativeLayout>

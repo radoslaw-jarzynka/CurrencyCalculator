@@ -24,10 +24,16 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_about=0x7f080014;
+        public static final int TextView01=0x7f080016;
+        public static final int TextView02=0x7f080017;
+        public static final int TextView03=0x7f080019;
+        public static final int TextView04=0x7f08001a;
+        public static final int action_about=0x7f08001b;
+        public static final int action_settings=0x7f08001c;
         public static final int arrow=0x7f080009;
         public static final int calcArea=0x7f080001;
         public static final int calcButton=0x7f080012;
+        public static final int findBankButton=0x7f080014;
         public static final int fromChf=0x7f080008;
         public static final int fromEdit=0x7f080002;
         public static final int fromEur=0x7f080005;
@@ -35,6 +41,8 @@ public final class R {
         public static final int fromPln=0x7f080004;
         public static final int fromRadioGroup=0x7f080003;
         public static final int fromUsd=0x7f080006;
+        public static final int linearLayout1=0x7f080015;
+        public static final int linearLayout2=0x7f080018;
         public static final int progressBar1=0x7f080013;
         public static final int refreshButton=0x7f080011;
         public static final int selectCurr=0x7f080000;
@@ -48,20 +56,26 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_calc=0x7f030000;
+        public static final int activity_map=0x7f030001;
     }
     public static final class menu {
         public static final int calc=0x7f070000;
+        public static final int map=0x7f070001;
     }
     public static final class string {
         public static final int action_about=0x7f050001;
+        public static final int action_settings=0x7f05000b;
         public static final int app_name=0x7f050000;
         public static final int calculate=0x7f050003;
         public static final int chf=0x7f050008;
         public static final int eur=0x7f050005;
+        public static final int findBankButton=0x7f05000d;
         public static final int gbp=0x7f050007;
+        public static final int hello_world=0x7f05000c;
         public static final int pln=0x7f050009;
         public static final int refresh=0x7f050004;
         public static final int select=0x7f050002;
+        public static final int title_activity_map=0x7f05000a;
         public static final int usd=0x7f050006;
     }
     public static final class style {

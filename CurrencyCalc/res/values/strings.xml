@@ -11,6 +11,9 @@
     <string name="gbp">GBP</string>
     <string name="chf">CHF</string>
     <string name="pln">PLN</string>
-
+    <string name="title_activity_map">MapActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="findBankButton">Znajdź najbliższy bank</string>
 
 </resources>

@@ -64,12 +64,17 @@ public class DBAdapter {
     }
     
     public long insertCurrency(String name, double value, double multiplier) {
-    	try {
-        ContentValues newCurrencyValues = new ContentValues();
-        newCurrencyValues.put(KEY_NAME, name);
-        newCurrencyValues.put(KEY_VALUE, value);
-        newCurrencyValues.put(KEY_MULTIPLIER, multiplier);
-        return db.insert(DB_CURRENCIES_TABLE, null, newCurrencyValues);
+    	db.execSQL("INSERT OR REPLACE INTO currencies VALUES ('"+name+"',"+value+","+multiplier+")");
+    	return 0;
+    	/*
+    	  try {
+    	 
+//    	db.execSQL("INSERT INTO currencies VALUES name = '" + name+"', "+value+ " , " + multiplier + ");");
+//        ContentValues newCurrencyValues = new ContentValues();
+//        newCurrencyValues.put(KEY_NAME, name);
+//        newCurrencyValues.put(KEY_VALUE, value);
+//        newCurrencyValues.put(KEY_MULTIPLIER, multiplier);
+//        return db.insert(DB_CURRENCIES_TABLE, null, newCurrencyValues);
     	} catch (SQLException e) {
     		db.execSQL("DELETE FROM currencies WHERE name = " + name);
             ContentValues newCurrencyValues = new ContentValues();
@@ -77,17 +82,17 @@ public class DBAdapter {
             newCurrencyValues.put(KEY_VALUE, value);
             newCurrencyValues.put(KEY_MULTIPLIER, multiplier);
             return db.insert(DB_CURRENCIES_TABLE, null, newCurrencyValues);
-    	}
+    	}*/
     }
-    
+    /*
     public boolean updateCurrency(Currency currency) {
         //long id = currency.getId();
         String name = currency.getName();
         double value = currency.getValue();
         double multiplier = currency.getMultiplier();
         return updateCurrency(name, value, multiplier);
-    }
-     
+    }*/
+     /*
     public boolean updateCurrency(String name, double value, double multiplier) {
     	try {
         String where = KEY_NAME + "=" + name;
@@ -101,7 +106,7 @@ public class DBAdapter {
     		return true;
     	}
     }
-
+*/
     public boolean deleteCurrency(String name){
         String where = KEY_NAME + "=" + name;
         return db.delete(DB_CURRENCIES_TABLE, where, null) > 0;
