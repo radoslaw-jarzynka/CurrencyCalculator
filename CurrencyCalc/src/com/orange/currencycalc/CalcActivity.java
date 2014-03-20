@@ -108,25 +108,29 @@ public class CalcActivity extends Activity {
 		dbAdapter.open();
 		getAllCurrencies();
 		
-//		if (isOnline()) {
-//			CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
-//			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
-//		}
-//		else {
+		dbAdapter.close();
+		
+		if (currencies.isEmpty()) {
+			CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
+			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
+		}
+		else {
 			downloading.setVisibility(View.GONE);
-//		}
+		}
 		calculateBtn.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				double fromValue = Double.parseDouble(fromEdit.getText().toString());
-				if (toCurrency != null && fromCurrency != null && !fromCurrency.name.equals("PLN")) {
-					//przerzucamy do PLN
-					double inPLN = fromValue/(fromCurrency.value*fromCurrency.multiplier);
-					//przerzucamy do wlasciwej waluty
-					toEdit.setText(String.format("%,.2f", inPLN*(toCurrency.value*toCurrency.multiplier)));
-				} else if (toCurrency != null) {
-					toEdit.setText(String.format("%,.2f", fromValue*(toCurrency.value*toCurrency.multiplier)));
+				if (!fromEdit.getText().toString().equals("")) {
+					double fromValue = Double.parseDouble(fromEdit.getText().toString());
+					if (toCurrency != null && fromCurrency != null && !fromCurrency.name.equals("PLN")) {
+						//przerzucamy do PLN
+						double inPLN = fromValue/(fromCurrency.value*fromCurrency.multiplier);
+						//przerzucamy do wlasciwej waluty
+						toEdit.setText(String.format("%,.2f", inPLN*(toCurrency.value*toCurrency.multiplier)));
+					} else if (toCurrency != null) {
+						toEdit.setText(String.format("%,.2f", fromValue*(toCurrency.value*toCurrency.multiplier)));
+					}
 				}
 			}
 		});
@@ -146,6 +150,17 @@ public class CalcActivity extends Activity {
 		findBankBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if(dbAdapter != null) {
+					dbAdapter.open();
+					Iterator it = currencies.entrySet().iterator();
+					while (it.hasNext()) {
+						Map.Entry pairs = (Map.Entry)it.next();
+						Currency _cur = (Currency) pairs.getValue();
+						dbAdapter.insertCurrency(_cur);
+						it.remove(); // avoids a ConcurrentModificationException
+					}
+					dbAdapter.close();
+				}
 				Intent i = new Intent(getApplicationContext(), MapActivity.class);
 				startActivity(i);
 			}
@@ -187,6 +202,7 @@ public class CalcActivity extends Activity {
 	protected void onStop() {
 		super.onStop();
 		if(dbAdapter != null) {
+			dbAdapter.open();
 			Iterator it = currencies.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry pairs = (Map.Entry)it.next();
