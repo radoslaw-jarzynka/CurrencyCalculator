@@ -18,22 +18,33 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.location.Address;
+
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonObjectParser;
+import com.google.api.client.json.jackson.JacksonFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 public class MapActivity extends FragmentActivity implements LocationListener {
 
-	public static int ZOOM_LVL = 15;
+	public static int ZOOM_LVL = 17;
+	public static int RADIUS = 1000;
+	
+	
 	
 	private TextView latituteField;
 	private TextView longitudeField;
@@ -58,6 +69,8 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 		}
 
 	};
+	
+	
 
 
 	@Override
@@ -82,6 +95,15 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	    	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);           
 	    } 	    
 	    mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+	    mMap.setOnMarkerClickListener(new OnMarkerClickListener() {
+
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+				marker.showInfoWindow();
+				return false;
+			}
+	    	
+	    });
 	    setUpMapIfNeeded();
 	    
 	}
@@ -128,15 +150,11 @@ public class MapActivity extends FragmentActivity implements LocationListener {
         	CameraUpdate zoom=CameraUpdateFactory.zoomTo(ZOOM_LVL);
         	mMap.moveCamera(center);
         	mMap.animateCamera(zoom);
-        	LatLng northeast = mMap.getProjection().getVisibleRegion().latLngBounds.northeast;
-        	LatLng southwest = mMap.getProjection().getVisibleRegion().latLngBounds.southwest;
-        	String[] args = new String[4];
-        	args[0] = "" + southwest.latitude;
-        	args[1] = "" + southwest.longitude;
-        	args[2] = "" + northeast.latitude;
-        	args[3] = "" + northeast.longitude;
+        	//String[] args = new String[2];
+        	//args[0] = "" + lat;
+        	//args[1] = "" + lng;
         	BankDownloader bd = new BankDownloader();
-        	bd.execute(args);
+        	bd.execute();
 	    }
 	}
 	
@@ -176,36 +194,70 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	 //   Toast.makeText(this, "Disabled provider " + provider,Toast.LENGTH_SHORT).show();
 	}
 	
-	private class BankDownloader extends AsyncTask<String, Void, List<Address>> {
+	
+	private class BankDownloader extends AsyncTask<Void, Void, BankList> {
 
+		private final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+		private static final String API_KEY = "AIzaSyAnYyGWvaPf06kETYG_Qox1gAmOhyKUkzw";
+	    private static final String PLACES_SEARCH_URL = "https://maps.googleapis.com/maps/api/place/search/json?";
+	    private static final String PLACES_TEXT_SEARCH_URL = "https://maps.googleapis.com/maps/api/place/search/json?";
+	    private static final String PLACES_DETAILS_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
+
+		
 		@Override
-		protected List<Address> doInBackground(String... args) {
+		protected BankList doInBackground(Void... args) {
 			try {
 			Log.d("map", "Looking up for addresses!");
-			Geocoder geocoder = new Geocoder(getApplicationContext() , Locale.getDefault());
-			List<Address> addresses = geocoder.getFromLocationName("bank", 6, Double.parseDouble(args[0]), 
-					Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]));
+			HttpRequestFactory httpRequestFactory = createRequestFactory(HTTP_TRANSPORT);
+            HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(PLACES_SEARCH_URL));
+            request.getUrl().put("key", API_KEY);
+            request.getUrl().put("name", "bank");
+            request.getUrl().put("location", lat + "," + lng);
+            request.getUrl().put("radius", RADIUS); // in meters
+            request.getUrl().put("sensor", "false");
+            //if(types != null)
+              //  request.getUrl().put("types", types);
+            
+            BankList list = request.execute().parseAs(BankList.class);
+            // Check log cat for places response status
+            
 			Log.d("map", "Finished looking up for addresses!");
-			return addresses;
+			return list;
 			} catch (Exception e) {
 				//jakby byly bledy niech zwroci pusta liste - nie bedzie null pointerow
-				List<Address> addr = new ArrayList<Address>();
-				return addr;
+				BankList bl = new BankList();
+				return bl;
 			}
 		}
 		
+		public HttpRequestFactory createRequestFactory(final HttpTransport transport) { 
+	        return transport.createRequestFactory(new HttpRequestInitializer() {
+	            public void initialize(HttpRequest request) {
+	                //GoogleHeaders headers = new GoogleHeaders();
+	                HttpHeaders headers = new HttpHeaders();
+	                //headers.setApplicationName("currencyCalc");
+	                request.setHeaders(headers);
+	                
+	                JsonObjectParser parser = new JsonObjectParser(new JacksonFactory());
+	                //request.addParser(parser);
+	                request.setParser(parser);
+	            }
+	        });
+	    }
+		
 		@Override
-		protected void onPostExecute(List<Address> addresses) {
-			if (addresses.size() != 0) {
-				for (Address addr : addresses) {
-					mMap.addMarker(new MarkerOptions()
-									.position(new LatLng(addr.getLatitude(), addr.getLongitude()))
-									.title(addr.getFeatureName()));
+		protected void onPostExecute(BankList bl) {
+			if (bl.results.size() != 0) {
+				for (Bank bank : bl.results) {
+					mMap.addMarker(new MarkerOptions().title(bank.name).snippet(bank.formatted_address)
+									.position(new LatLng(bank.geometry.location.lat, bank.geometry.location.lng)));
+									
+									
 				}
 			} else {
 				Toast.makeText(getApplicationContext(), "Nie znaleziono bankow w poblizu, rozszerzam zakres przeszukiwania", Toast.LENGTH_SHORT);
-				ZOOM_LVL--;
-				setUpMapIfNeeded();
+				//ZOOM_LVL--;
+				//setUpMapIfNeeded();
 			}
 		}
 		
