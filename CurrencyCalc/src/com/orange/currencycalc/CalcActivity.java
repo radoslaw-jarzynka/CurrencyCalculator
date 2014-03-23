@@ -125,11 +125,11 @@ public class CalcActivity extends Activity {
 					double fromValue = Double.parseDouble(fromEdit.getText().toString());
 					if (toCurrency != null && fromCurrency != null && !fromCurrency.name.equals("PLN")) {
 						//przerzucamy do PLN
-						double inPLN = fromValue/(fromCurrency.value*fromCurrency.multiplier);
+						double inPLN = fromValue*(fromCurrency.value*fromCurrency.multiplier);
 						//przerzucamy do wlasciwej waluty
-						toEdit.setText(String.format("%,.2f", inPLN*(toCurrency.value*toCurrency.multiplier)));
+						toEdit.setText(String.format("%,.2f", inPLN/(toCurrency.value*toCurrency.multiplier)));
 					} else if (toCurrency != null) {
-						toEdit.setText(String.format("%,.2f", fromValue*(toCurrency.value*toCurrency.multiplier)));
+						toEdit.setText(String.format("%,.2f", fromValue/(toCurrency.value*toCurrency.multiplier)));
 					}
 				}
 			}

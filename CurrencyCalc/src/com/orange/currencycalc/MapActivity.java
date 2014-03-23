@@ -8,23 +8,33 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.location.Address;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class MapActivity extends FragmentActivity implements LocationListener {
 
+	public static int ZOOM_LVL = 15;
+	
 	private TextView latituteField;
 	private TextView longitudeField;
 	private Button refreshButton;
@@ -68,8 +78,8 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	    refreshButton.setOnClickListener(new ButtonClickListener(this));
 	    
 	    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-	    if (LocationManager.GPS_PROVIDER != null) {
-	    	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);           
+	    if (LocationManager.NETWORK_PROVIDER != null) {
+	    	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);           
 	    } 	    
 	    mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 	    setUpMapIfNeeded();
@@ -109,18 +119,24 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	        	mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 	        	if (!mMap.isMyLocationEnabled()) mMap.setMyLocationEnabled(true);
 	        	CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(lat,lng));
-	        	CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+	        	CameraUpdate zoom=CameraUpdateFactory.zoomTo(ZOOM_LVL);
 	        	mMap.moveCamera(center);
 	        	mMap.animateCamera(zoom);
 	        }
 	    } else {
 	    	CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(lat,lng));
-        	CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+        	CameraUpdate zoom=CameraUpdateFactory.zoomTo(ZOOM_LVL);
         	mMap.moveCamera(center);
         	mMap.animateCamera(zoom);
-        	
-        	
-        	
+        	LatLng northeast = mMap.getProjection().getVisibleRegion().latLngBounds.northeast;
+        	LatLng southwest = mMap.getProjection().getVisibleRegion().latLngBounds.southwest;
+        	String[] args = new String[4];
+        	args[0] = "" + southwest.latitude;
+        	args[1] = "" + southwest.longitude;
+        	args[2] = "" + northeast.latitude;
+        	args[3] = "" + northeast.longitude;
+        	BankDownloader bd = new BankDownloader();
+        	bd.execute(args);
 	    }
 	}
 	
@@ -129,8 +145,16 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	public void onLocationChanged(Location location) {
 	    lat = (double) (location.getLatitude());
 	    lng = (double) (location.getLongitude());
-	    latituteField.setText(String.valueOf(lat).substring(0, 9));
-	    longitudeField.setText(String.valueOf(lng).substring(0, 9));
+	    if (String.valueOf(lat).length() >= 10) {
+	    	latituteField.setText(String.valueOf(lat).substring(0, 9));
+	    } else {
+	    	latituteField.setText(String.valueOf(lat));
+	    }
+	    if (String.valueOf(lng).length() >= 10) {
+	    	longitudeField.setText(String.valueOf(lng).substring(0, 9));
+	    } else {
+	    	longitudeField.setText(String.valueOf(lng));
+	    }
 	    if (firstLocationChange) {
 	    	setUpMapIfNeeded();
 	    	firstLocationChange = false;
@@ -151,4 +175,40 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	public void onProviderDisabled(String provider) {
 	 //   Toast.makeText(this, "Disabled provider " + provider,Toast.LENGTH_SHORT).show();
 	}
+	
+	private class BankDownloader extends AsyncTask<String, Void, List<Address>> {
+
+		@Override
+		protected List<Address> doInBackground(String... args) {
+			try {
+			Log.d("map", "Looking up for addresses!");
+			Geocoder geocoder = new Geocoder(getApplicationContext() , Locale.getDefault());
+			List<Address> addresses = geocoder.getFromLocationName("bank", 6, Double.parseDouble(args[0]), 
+					Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]));
+			Log.d("map", "Finished looking up for addresses!");
+			return addresses;
+			} catch (Exception e) {
+				//jakby byly bledy niech zwroci pusta liste - nie bedzie null pointerow
+				List<Address> addr = new ArrayList<Address>();
+				return addr;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(List<Address> addresses) {
+			if (addresses.size() != 0) {
+				for (Address addr : addresses) {
+					mMap.addMarker(new MarkerOptions()
+									.position(new LatLng(addr.getLatitude(), addr.getLongitude()))
+									.title(addr.getFeatureName()));
+				}
+			} else {
+				Toast.makeText(getApplicationContext(), "Nie znaleziono bankow w poblizu, rozszerzam zakres przeszukiwania", Toast.LENGTH_SHORT);
+				ZOOM_LVL--;
+				setUpMapIfNeeded();
+			}
+		}
+		
+	}
+	
 }
