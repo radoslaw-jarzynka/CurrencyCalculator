@@ -1,10 +1,8 @@
 package com.orange.currencycalc;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -45,7 +43,7 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	public static int ZOOM_LVL = 16;
 	public static int RADIUS = 1000;
 	
-	
+	private boolean firstRun;
 	
 	private TextView latituteField;
 	private TextView longitudeField;
@@ -77,7 +75,7 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		firstRun = true;
 		lat = 52.2297700;
 		lng = 21.0117800;
 
@@ -156,8 +154,11 @@ public class MapActivity extends FragmentActivity implements LocationListener {
         	mMap.addMarker(new MarkerOptions().title(getResources().getString(R.string.youAreHere))
         			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
 									.position(new LatLng(lat,lng)));
-        	BankDownloader bd = new BankDownloader();
-        	bd.execute();
+        	if (!firstRun) {
+        		firstRun = false;
+        		BankDownloader bd = new BankDownloader();
+        		bd.execute();
+        	}
 	    }
 	}
 	

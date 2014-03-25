@@ -1,6 +1,5 @@
 package com.orange.currencycalc;
 
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,7 +9,6 @@ import java.util.Map;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -31,18 +29,23 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-
+/**
+ * 
+ * @author radoslawjarzynka
+ * Glowne Activity otwierane po wlaczeniu aplikacji z interfejsem sluzacym do przeliczania walut
+ */
 public class CalcActivity extends Activity {
-	
-	public static final String PREFS_NAME = "CurrancyCalcFile";
 	
 	Currency fromCurrency;
 	Currency toCurrency;
 	
+	//do obslugi SQLite
 	private DBAdapter dbAdapter;
 	private Cursor currencyCursor;
 	
 	HashMap<String, Currency> currencies;
+	
+	//elementy interfejsu
 	Button calculateBtn;
 	Button refreshBtn;
 	Button findBankBtn;
@@ -52,11 +55,18 @@ public class CalcActivity extends Activity {
 	Spinner fromSpinner;
 	Spinner toSpinner;
 	
+	/**
+	 * Pobranie danych wszystkich walut z bazy danych
+	 */
 	private void getAllCurrencies() {
 	    currencyCursor = getAllEntriesFromDb();
 	    updateCurrencyMap();
 	}
 	 
+	/**
+	 * metoda ustawiajaca kursor na pierwszym elemencie bazy danych zawierajacej informacje o walutach
+	 * @return kursor do bazy danych
+	 */
 	@SuppressWarnings("deprecation")
 	private Cursor getAllEntriesFromDb() {
 	    currencyCursor = dbAdapter.getAllCurrencies();
@@ -66,10 +76,12 @@ public class CalcActivity extends Activity {
 	        }
 	        currencyCursor.moveToFirst();
 	    }
-	    
 	    return currencyCursor;
 	}
 	 
+	/**
+	 * metoda tworzaca mape currencies na podstawie informacji zawartych w bazie danych
+	 */
 	private void updateCurrencyMap() {
 	    if(currencyCursor != null && currencyCursor.moveToFirst()) {
 	        do {
@@ -82,6 +94,9 @@ public class CalcActivity extends Activity {
 	    updateSpinners();
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onRestart()
+	 */
 	@Override
 	protected void onRestart() {
 		super.onRestart();
@@ -91,6 +106,9 @@ public class CalcActivity extends Activity {
 		getAllCurrencies();
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -99,13 +117,18 @@ public class CalcActivity extends Activity {
 		getAllCurrencies();
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_calc);
 		
   		currencies = new HashMap<String, Currency>();
-  		
   	    
 		calculateBtn = (Button) findViewById(R.id.calcButton);
 		refreshBtn = (Button) findViewById(R.id.refreshButton);
@@ -122,7 +145,7 @@ public class CalcActivity extends Activity {
 		
 		dbAdapter.close();
 		
-		
+		// jezeli baza byla pusta - sciagamy informacje z internetu
 		if (currencies.isEmpty()) {
 			CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
 			currencyDownloader.execute("http://www.nbp.pl/kursy/xml/LastA.xml");
@@ -130,8 +153,14 @@ public class CalcActivity extends Activity {
 		else {
 			downloading.setVisibility(View.GONE);
 		}
+		
+		// dodanie Listenerow do poszczegolnych przyciskow i spinnerow
+		
 		calculateBtn.setOnClickListener(new OnClickListener() {
 			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				if (!fromEdit.getText().toString().equals("")) {
@@ -150,6 +179,9 @@ public class CalcActivity extends Activity {
 		
 		toSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
+			 */
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				toCurrency = currencies.get(toSpinner.getItemAtPosition(arg2).toString());
@@ -158,6 +190,9 @@ public class CalcActivity extends Activity {
 				
 			}
 
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
+			 */
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
 				toCurrency = null;	
@@ -168,6 +203,9 @@ public class CalcActivity extends Activity {
 		
 		fromSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
+			 */
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				fromCurrency = currencies.get(toSpinner.getItemAtPosition(arg2).toString());
@@ -175,6 +213,9 @@ public class CalcActivity extends Activity {
 				radioGroup.check(R.id.fromOther);
 			}
 
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
+			 */
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
 				fromCurrency = null;
@@ -185,6 +226,9 @@ public class CalcActivity extends Activity {
 		
 		refreshBtn.setOnClickListener(new OnClickListener() {
 			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
 			@Override
 			public void onClick(View v) {
 				if (isOnline()) {
@@ -196,6 +240,11 @@ public class CalcActivity extends Activity {
 		});
 		
 		findBankBtn.setOnClickListener(new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@SuppressWarnings("rawtypes")
 			@Override
 			public void onClick(View v) {
 				if(dbAdapter != null) {
@@ -217,28 +266,43 @@ public class CalcActivity extends Activity {
 		
 	}
 
+
+	/**
+	 * metoda ustawiajaca obiekt fromCurrency na podstawie wcisnietego radiobuttona
+	 * @param view wcisniety radiobutton
+	 */
 	public void onFromRadioButtonClicked(View view) {
 		RadioButton radioButton = (RadioButton) view;
 		String other = getResources().getString(R.string.other);
-		if (currencies.get(radioButton.getText()).equals(other)) {
+		if (radioButton.getText().equals(other)) {
 			fromCurrency = currencies.get(fromSpinner.getSelectedItem().toString());
 		} else fromCurrency = currencies.get(radioButton.getText());
 	}
-	
+	/**
+	 * metoda ustawiajaca obiekt toCurrency na podstawie wcisnietego radiobuttona
+	 * @param view wcisniety radiobutton
+	 */
 	public void onToRadioButtonClicked(View view) {
 		RadioButton radioButton = (RadioButton) view;
 		String other = getResources().getString(R.string.other);
-		if (currencies.get(radioButton.getText()).equals(other)) {
+		if (radioButton.getText().equals(other)) {
 			toCurrency = currencies.get(fromSpinner.getSelectedItem().toString());
 		} else toCurrency = currencies.get(radioButton.getText());
 	}
 	
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.calc, menu);
 		return true;
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onMenuItemSelected(int, android.view.MenuItem)
+	 */
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		if(item.getItemId()==R.id.action_about){
@@ -250,6 +314,9 @@ public class CalcActivity extends Activity {
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
+	/**
+	 * metoda uaktualniajaca zawartosc spinnerow (list drop-down) na podstawie kluczy w mapie currencies
+	 */
 	private void updateSpinners() {
 		if (currencies != null) {
 			List<String> list = new ArrayList<String>();
@@ -265,6 +332,9 @@ public class CalcActivity extends Activity {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onStop()
+	 */
 	@Override
 	@SuppressWarnings("rawtypes")
 	protected void onStop() {
@@ -285,6 +355,10 @@ public class CalcActivity extends Activity {
 		
 	}
 	
+	/**
+	 * metoda sprawdzajaca, czy aplikacja ma dostep do internetu
+	 * @return true gdy jest dostep, false gdy go nie ma
+	 */
 	public boolean isOnline() {
 	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -295,20 +369,33 @@ public class CalcActivity extends Activity {
 	}
 
 
+	/**
+	 *	Klasa obslugujaca sciaganie kursow walut w innym watku niz aplikacja
+	 */
 	private class CurrencyDownloader extends AsyncTask<String, Void, HashMap<String, Currency>> {
 		
 		HashMap<String,Currency> currencies;
 		
+		/**
+		 * konstruktor
+		 * @param currencies mapa, do ktorej bedziemy zapisywac wyniki
+		 */
 		public CurrencyDownloader(HashMap<String,Currency> currencies) {
 			this.currencies = currencies;
 		}
 		
+	    /* (non-Javadoc)
+	     * @see android.os.AsyncTask#doInBackground(Params[])
+	     */
 	    protected HashMap<String, Currency> doInBackground(String... url) {
 	    	//downloading.setVisibility(View.VISIBLE);
 	    	Log.d("", "Downlading!");
 	    	return CurrenciesParser.getCurrencies(url[0], currencies);
 	    }
 	    
+	    /* (non-Javadoc)
+	     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+	     */
 	    protected void onPostExecute(HashMap<String, Currency> result) {
 	    	currencies = result;
 	    	updateSpinners();
