@@ -249,7 +249,7 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 		protected void onPostExecute(BankList bl) {
 			if (bl.results.size() != 0) {
 				for (Bank bank : bl.results) {
-					mMap.addMarker(new MarkerOptions().title(bank.name).snippet(bank.formatted_address)
+					mMap.addMarker(new MarkerOptions().title(bank.name).snippet(bank.vicinity)
 									.position(new LatLng(bank.geometry.location.lat, bank.geometry.location.lng)));
 									
 									
