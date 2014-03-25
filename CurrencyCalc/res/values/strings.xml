@@ -19,5 +19,6 @@
     <string name="latitude">Szerokość:</string>
     <string name="other">Inne</string>
     <string name="youAreHere">Jesteś tutaj</string>
+    <string name="arrow">-&gt;</string>
 
 </resources>

@@ -272,6 +272,7 @@ containing a value of this type.
         public static final int action_about=0x7f06001b;
         public static final int action_settings=0x7f060025;
         public static final int app_name=0x7f06001a;
+        public static final int arrow=0x7f06002c;
         /**   Title for notification shown when GooglePlayServices needs to be
         enabled for a application to work. [CHAR LIMIT=70] 
          */

@@ -6,7 +6,15 @@ import java.io.Serializable;
 import com.google.api.client.util.Key;
 
 
+/**
+ * @author radoslawjarzynka
+ *	klasa przechowujaca informacje o poszczegolnym banku w postaci "klucz"-"wartosc"
+ *	nazwy obiektow pokrywaja sie z nazwami atrybutow przekazywanych w JSON z Google Places API
+ */
 public class Bank implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	@Key
     public String id;
      
@@ -36,15 +44,26 @@ public class Bank implements Serializable {
         return name + " - " + id + " - " + reference;
     }
      
+    /**
+     * @author radoslawjarzynka
+     *klasa przechowujaca informacje o lokalizacji obiektu
+     */
     public static class Geometry implements Serializable
     {
-        @Key
+		private static final long serialVersionUID = 1L;
+		@Key
         public Location location;
     }
      
+    /**
+     * @author radoslawjarzynka
+     *	klasa przechowujaca dokladna wartosc szerokosci i dlugosci geograficznej obiektu
+     */
     public static class Location implements Serializable
     {
-        @Key
+		private static final long serialVersionUID = 1L;
+
+		@Key
         public double lat;
          
         @Key
