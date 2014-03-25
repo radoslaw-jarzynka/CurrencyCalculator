@@ -25,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -41,7 +42,7 @@ import com.google.api.client.json.jackson.JacksonFactory;
 
 public class MapActivity extends FragmentActivity implements LocationListener {
 
-	public static int ZOOM_LVL = 17;
+	public static int ZOOM_LVL = 16;
 	public static int RADIUS = 1000;
 	
 	
@@ -144,15 +145,17 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 	        	CameraUpdate zoom=CameraUpdateFactory.zoomTo(ZOOM_LVL);
 	        	mMap.moveCamera(center);
 	        	mMap.animateCamera(zoom);
+	        	mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+						.position(new LatLng(lat,lng)));
 	        }
 	    } else {
 	    	CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(lat,lng));
         	CameraUpdate zoom=CameraUpdateFactory.zoomTo(ZOOM_LVL);
         	mMap.moveCamera(center);
         	mMap.animateCamera(zoom);
-        	//String[] args = new String[2];
-        	//args[0] = "" + lat;
-        	//args[1] = "" + lng;
+        	mMap.addMarker(new MarkerOptions().title(getResources().getString(R.string.youAreHere))
+        			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+									.position(new LatLng(lat,lng)));
         	BankDownloader bd = new BankDownloader();
         	bd.execute();
 	    }
@@ -251,8 +254,6 @@ public class MapActivity extends FragmentActivity implements LocationListener {
 				for (Bank bank : bl.results) {
 					mMap.addMarker(new MarkerOptions().title(bank.name).snippet(bank.vicinity)
 									.position(new LatLng(bank.geometry.location.lat, bank.geometry.location.lng)));
-									
-									
 				}
 			} else {
 				Toast.makeText(getApplicationContext(), "Nie znaleziono bankow w poblizu, rozszerzam zakres przeszukiwania", Toast.LENGTH_SHORT);

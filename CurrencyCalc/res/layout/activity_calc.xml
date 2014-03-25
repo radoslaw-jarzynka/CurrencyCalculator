@@ -35,7 +35,9 @@
                 android:id="@+id/fromEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="5" >
+                android:ems="5" 
+                android:inputType="number"
+                android:imeOptions="actionDone">
             </EditText>
 
             <RadioGroup
@@ -74,12 +76,19 @@
                     android:text="@string/gbp" />
 
                 <RadioButton
-                    android:id="@+id/fromChf"
+                    android:id="@+id/fromOther"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="onFromRadioButtonClicked"
-                    android:text="@string/chf" />
+                    android:text="@string/other" />
             </RadioGroup>
+            
+            <Spinner
+                android:id="@+id/fromSpinner"
+                android:layout_width="111dp"
+                android:layout_height="wrap_content" 
+                android:text="@string/other"/>
+
         </LinearLayout>
 
         <TextView
@@ -99,7 +108,10 @@
                 android:id="@+id/toEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="5" >
+                android:ems="5" 
+                android:inputType="number"
+                android:imeOptions="actionDone">
+                
             </EditText>
 
             <RadioGroup
@@ -137,22 +149,21 @@
                     android:text="@string/gbp" />
 
                 <RadioButton
-                    android:id="@+id/toChf"
+                    android:id="@+id/toOther"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="onToRadioButtonClicked"
-                    android:text="@string/chf" />
+                    android:text="@string/other" />
             </RadioGroup>
+
+            <Spinner
+                android:id="@+id/toSpinner"
+                android:layout_width="111dp"
+                android:layout_height="wrap_content"
+                android:text="@string/other" />
+
         </LinearLayout>
     </LinearLayout>
-
-    <Button
-        android:id="@+id/refreshButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/calcArea"
-        android:layout_below="@+id/calcArea"
-        android:text="@string/refresh" />
 
     <Button
         android:id="@+id/calcButton"
@@ -179,5 +190,13 @@
         android:layout_below="@id/refreshButton"
         android:layout_marginTop="34dp"
         android:text="@string/findBankButton" />
+
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/calcArea"
+        android:layout_below="@+id/calcArea"
+        android:text="@string/refresh" />
 
 </RelativeLayout>

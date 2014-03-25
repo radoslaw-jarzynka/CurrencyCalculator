@@ -221,39 +221,41 @@ containing a value of this type.
         public static final int ic_plusone_tall_off_client=0x7f02001c;
     }
     public static final class id {
-        public static final int TextView01=0x7f05001a;
-        public static final int TextView02=0x7f05001b;
-        public static final int TextView03=0x7f05001c;
-        public static final int TextView04=0x7f05001d;
-        public static final int action_about=0x7f05001f;
-        public static final int action_settings=0x7f050020;
-        public static final int arrow=0x7f05000e;
+        public static final int TextView01=0x7f05001c;
+        public static final int TextView02=0x7f05001d;
+        public static final int TextView03=0x7f05001e;
+        public static final int TextView04=0x7f05001f;
+        public static final int action_about=0x7f050021;
+        public static final int action_settings=0x7f050022;
+        public static final int arrow=0x7f05000f;
         public static final int calcArea=0x7f050006;
-        public static final int calcButton=0x7f050017;
-        public static final int findBankButton=0x7f050019;
-        public static final int fromChf=0x7f05000d;
+        public static final int calcButton=0x7f050018;
+        public static final int findBankButton=0x7f05001b;
         public static final int fromEdit=0x7f050007;
         public static final int fromEur=0x7f05000a;
         public static final int fromGbp=0x7f05000c;
+        public static final int fromOther=0x7f05000d;
         public static final int fromPln=0x7f050009;
         public static final int fromRadioGroup=0x7f050008;
+        public static final int fromSpinner=0x7f05000e;
         public static final int fromUsd=0x7f05000b;
         public static final int hybrid=0x7f050004;
-        public static final int map=0x7f05001e;
+        public static final int map=0x7f050020;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
-        public static final int progressBar1=0x7f050018;
-        public static final int refreshButton=0x7f050016;
+        public static final int progressBar1=0x7f05001a;
+        public static final int refreshButton=0x7f050019;
         public static final int satellite=0x7f050002;
         public static final int selectCurr=0x7f050005;
         public static final int terrain=0x7f050003;
-        public static final int toChf=0x7f050015;
-        public static final int toEdit=0x7f05000f;
-        public static final int toEur=0x7f050012;
-        public static final int toGbp=0x7f050014;
-        public static final int toPln=0x7f050011;
-        public static final int toRadioGroup=0x7f050010;
-        public static final int toUsd=0x7f050013;
+        public static final int toEdit=0x7f050010;
+        public static final int toEur=0x7f050013;
+        public static final int toGbp=0x7f050015;
+        public static final int toOther=0x7f050016;
+        public static final int toPln=0x7f050012;
+        public static final int toRadioGroup=0x7f050011;
+        public static final int toSpinner=0x7f050017;
+        public static final int toUsd=0x7f050014;
     }
     public static final class integer {
         public static final int google_play_services_version=0x7f070000;
@@ -372,11 +374,13 @@ containing a value of this type.
         public static final int hello_world=0x7f060026;
         public static final int latitude=0x7f060029;
         public static final int longitude=0x7f060028;
+        public static final int other=0x7f06002a;
         public static final int pln=0x7f060023;
         public static final int refresh=0x7f06001e;
         public static final int select=0x7f06001c;
         public static final int title_activity_map=0x7f060024;
         public static final int usd=0x7f060020;
+        public static final int youAreHere=0x7f06002b;
     }
     public static final class style {
         /** 

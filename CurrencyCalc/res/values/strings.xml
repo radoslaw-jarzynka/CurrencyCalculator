@@ -17,5 +17,7 @@
     <string name="findBankButton">Znajdź najbliższy bank</string>
     <string name="longitude">Długość:</string>
     <string name="latitude">Szerokość:</string>
+    <string name="other">Inne</string>
+    <string name="youAreHere">Jesteś tutaj</string>
 
 </resources>

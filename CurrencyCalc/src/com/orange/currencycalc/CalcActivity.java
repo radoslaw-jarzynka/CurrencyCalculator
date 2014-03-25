@@ -1,8 +1,10 @@
 package com.orange.currencycalc;
 
 import java.text.Format;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
@@ -20,10 +22,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
 
 public class CalcActivity extends Activity {
 	
@@ -42,6 +49,8 @@ public class CalcActivity extends Activity {
 	EditText fromEdit;
 	EditText toEdit;
 	ProgressBar downloading;
+	Spinner fromSpinner;
+	Spinner toSpinner;
 	
 	private void getAllCurrencies() {
 	    currencyCursor = getAllEntriesFromDb();
@@ -70,6 +79,7 @@ public class CalcActivity extends Activity {
 	            currencies.put(name, new Currency(name,value,multiplier));
 	        } while(currencyCursor.moveToNext());
 	    }
+	    updateSpinners();
 	}
 	
 	@Override
@@ -103,12 +113,15 @@ public class CalcActivity extends Activity {
 		downloading = (ProgressBar) findViewById(R.id.progressBar1);
 		fromEdit = (EditText) findViewById(R.id.fromEdit);
 		toEdit = (EditText) findViewById(R.id.toEdit);
+		toSpinner = (Spinner) findViewById(R.id.toSpinner);
+		fromSpinner = (Spinner) findViewById(R.id.fromSpinner);
 		
 		dbAdapter = new DBAdapter(getApplicationContext());
 		dbAdapter.open();
 		getAllCurrencies();
 		
 		dbAdapter.close();
+		
 		
 		if (currencies.isEmpty()) {
 			CurrencyDownloader currencyDownloader = new CurrencyDownloader(currencies);
@@ -132,6 +145,41 @@ public class CalcActivity extends Activity {
 						toEdit.setText(String.format("%,.2f", fromValue/(toCurrency.value*toCurrency.multiplier)));
 					}
 				}
+			}
+		});
+		
+		toSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				toCurrency = currencies.get(toSpinner.getItemAtPosition(arg2).toString());
+				RadioGroup radioGroup = (RadioGroup) findViewById(R.id.toRadioGroup);
+				radioGroup.check(R.id.toOther);
+				
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				toCurrency = null;	
+				RadioGroup radioGroup = (RadioGroup) findViewById(R.id.toRadioGroup);
+				radioGroup.clearCheck();
+			}
+		});
+		
+		fromSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				fromCurrency = currencies.get(toSpinner.getItemAtPosition(arg2).toString());
+				RadioGroup radioGroup = (RadioGroup) findViewById(R.id.fromRadioGroup);
+				radioGroup.check(R.id.fromOther);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				fromCurrency = null;
+				RadioGroup radioGroup = (RadioGroup) findViewById(R.id.fromRadioGroup);
+				radioGroup.clearCheck();
 			}
 		});
 		
@@ -171,12 +219,18 @@ public class CalcActivity extends Activity {
 
 	public void onFromRadioButtonClicked(View view) {
 		RadioButton radioButton = (RadioButton) view;
-	    fromCurrency = currencies.get(radioButton.getText());
+		String other = getResources().getString(R.string.other);
+		if (currencies.get(radioButton.getText()).equals(other)) {
+			fromCurrency = currencies.get(fromSpinner.getSelectedItem().toString());
+		} else fromCurrency = currencies.get(radioButton.getText());
 	}
 	
 	public void onToRadioButtonClicked(View view) {
 		RadioButton radioButton = (RadioButton) view;
-		toCurrency = currencies.get(radioButton.getText());
+		String other = getResources().getString(R.string.other);
+		if (currencies.get(radioButton.getText()).equals(other)) {
+			toCurrency = currencies.get(fromSpinner.getSelectedItem().toString());
+		} else toCurrency = currencies.get(radioButton.getText());
 	}
 	
 	@Override
@@ -196,6 +250,20 @@ public class CalcActivity extends Activity {
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
+	private void updateSpinners() {
+		if (currencies != null) {
+			List<String> list = new ArrayList<String>();
+			for (String s : currencies.keySet()) {
+				if (!s.equals("PLN") && !s.equals("EUR") && !s.equals("GBP") && !s.equals("USD")) {
+					list.add(s);
+				}
+				ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+				dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+				fromSpinner.setAdapter(dataAdapter);
+				toSpinner.setAdapter(dataAdapter);
+			}
+		}
+	}
 	
 	@Override
 	@SuppressWarnings("rawtypes")
@@ -243,6 +311,7 @@ public class CalcActivity extends Activity {
 	    
 	    protected void onPostExecute(HashMap<String, Currency> result) {
 	    	currencies = result;
+	    	updateSpinners();
 	    	Log.d("", "Finished Downloading!");
 	    	downloading.setVisibility(View.GONE);
 	    }
